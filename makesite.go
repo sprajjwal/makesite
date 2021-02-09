@@ -2,11 +2,14 @@ package main
 
 import (
 	"bytes"
+	"flag"
 	"html/template"
 	"io/ioutil"
 )
 
 func main() {
+	filePtr := flag.String("flag", "defaultValue", "Pass the file to open.")
+	flag.Parse()
 	FileContents, err := ioutil.ReadFile("first-post.txt")
 	if err != nil {
 		panic(err)
@@ -20,7 +23,7 @@ func main() {
 		panic(err)
 	}
 
-	err = ioutil.WriteFile("new-file.html", b.Bytes(), 777)
+	err = ioutil.WriteFile(*filePtr, b.Bytes(), 777)
 	if err != nil {
 		panic(err)
 	}
