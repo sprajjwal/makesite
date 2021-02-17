@@ -5,7 +5,10 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"text/template"
+
+	"github.com/russross/blackfriday"
 )
 
 func makeStaticPage(dir string, filename string) {
@@ -36,12 +39,29 @@ func makeStaticPage(dir string, filename string) {
 
 }
 
-func main() {
-	filePtr := flag.String("flag", "defaultValue", "Pass the file to open.")
-	dirPtr := flag.String("dir", "", "Pass the directory to look in")
+func writeMdToTmpl(md string) {
+	f, err := os.OpenFile("template.tmpl", os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
+	if err != nil {
+		panic(err)
+	}
 
+	defer f.Close()
+
+	if _, err = f.WriteString(md); err != nil {
+		panic(err)
+	}
+}
+
+func main() {
+	filePtr := flag.String("file", "defaultValue", "Pass the file to open.")
+	dirPtr := flag.String("dir", "", "Pass the directory to look in")
+	mdPtr := flag.String("md", "README.md", "enter the address of markdown file to add")
 	flag.Parse() // parse the flags
 
+	mdFile, _ := ioutil.ReadFile(*mdPtr)
+	markdown := string(blackfriday.MarkdownBasic(mdFile))
+
+	writeMdToTmpl(markdown)
 	if *filePtr != "defaultValue" {
 		makeStaticPage(".", *filePtr)
 	}
@@ -57,4 +77,5 @@ func main() {
 			}
 		}
 	}
+
 }
